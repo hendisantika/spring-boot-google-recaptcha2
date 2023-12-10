@@ -1,4 +1,4 @@
-package com.hendisantika.recaptcha2;
+package com.hendisantika.recaptcha3;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

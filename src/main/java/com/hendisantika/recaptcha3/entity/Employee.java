@@ -1,4 +1,4 @@
-package com.hendisantika.recaptcha2.entity;
+package com.hendisantika.recaptcha3.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

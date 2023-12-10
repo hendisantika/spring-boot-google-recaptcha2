@@ -1,4 +1,4 @@
-package com.hendisantika.recaptcha2;
+package com.hendisantika.recaptcha3;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
