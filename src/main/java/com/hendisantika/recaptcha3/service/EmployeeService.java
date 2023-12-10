@@ -1,8 +1,11 @@
 package com.hendisantika.recaptcha3.service;
 
+import com.hendisantika.recaptcha3.entity.Employee;
 import com.hendisantika.recaptcha3.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -18,4 +21,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class EmployeeService {
     private final EmployeeRepository employeeRepository;
+
+    public List<Employee> findAll() {
+        return employeeRepository.findAll();
+    }
 }
