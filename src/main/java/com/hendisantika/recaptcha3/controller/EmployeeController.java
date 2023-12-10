@@ -38,4 +38,9 @@ public class EmployeeController {
         return "index";
     }
 
+    @GetMapping("/create/form")
+    public String createForm(Model model) {
+        model.addAttribute("employee", new Employee());
+        return "form";
+    }
 }
