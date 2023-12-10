@@ -1,5 +1,6 @@
 package com.hendisantika.recaptcha3.controller;
 
+import com.hendisantika.recaptcha3.dto.EmployeeDTO;
 import com.hendisantika.recaptcha3.entity.Employee;
 import com.hendisantika.recaptcha3.service.EmployeeService;
 import com.hendisantika.recaptcha3.service.RecaptchaService;
@@ -7,6 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -42,5 +46,26 @@ public class EmployeeController {
     public String createForm(Model model) {
         model.addAttribute("employee", new Employee());
         return "form";
+    }
+
+    @PostMapping("/create/process")
+    public String createProcess(@ModelAttribute(name = "employee") EmployeeDTO employeeDTO, @RequestParam(name = "g-recaptcha-response") String captcha, Model model) {
+
+        boolean captchaValid = recaptchaService.validateRecaptcha(captcha);
+
+        if (captchaValid) {
+            Employee employeeEntity = Employee.builder()
+                    .name(employeeDTO.getName())
+                    .lastName(employeeDTO.getLastName())
+                    .dateOfBirth(employeeDTO.getDateOfBirth())
+                    .build();
+
+            employeeService.createEmployee(employeeEntity);
+            return "redirect:/all";
+        } else {
+
+            model.addAttribute("message", "captcha invalido");
+            return "error";
+        }
     }
 }
