@@ -1,5 +1,6 @@
 package com.hendisantika.recaptcha3.service;
 
+import com.hendisantika.recaptcha3.response.RecaptchaResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
