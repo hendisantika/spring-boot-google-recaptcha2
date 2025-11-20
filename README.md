@@ -2,6 +2,16 @@
 
 A Spring Boot application demonstrating Google reCAPTCHA v3 integration with employee management functionality.
 
+## Image Screenshot
+
+Add New Employee
+
+![Add New Employee](img/Add-New-Employee.png "Add New Employee")
+
+List Employees
+
+![List Employees](img/list.png "List Employees")
+
 ## Features
 
 - Employee management system (Create, Read operations)
