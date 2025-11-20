@@ -5,7 +5,7 @@
     <meta content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
           name="viewport">
     <meta content="ie=edge" http-equiv="X-UA-Compatible">
-    <title>Document</title>
+    <title>Create Employee</title>
 
     <link crossorigin="anonymous" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
           rel="stylesheet" th:href="@{https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css}">
@@ -16,25 +16,36 @@
 <div class="container">
     <h1 class="text-center mt-4">User Management</h1>
 
-    <form method="post" th:action="@{/create/process}" th:object="${employee}">
+    <form id="employeeForm" method="post" th:action="@{/create/process}" th:object="${employee}">
 
         <div class="mb-3">
             <label class="form-label" for="name">First Name</label>
-            <input class="form-control" id="name" name="name" th:field="*{name}" type="text"/>
+            <input class="form-control" id="name" name="name" required th:field="*{name}" type="text"/>
         </div>
         <div class="mb-3">
             <label class="form-label" for="lastName">Last name</label>
-            <input class="form-control" id="lastName" name="lastName" th:field="*{lastName}" type="text"/>
+            <input class="form-control" id="lastName" name="lastName" required th:field="*{lastName}" type="text"/>
         </div>
         <div class="mb-3">
             <label class="form-label" for="dateOfBirth">Birthdate</label>
-            <input class="form-control" id="dateOfBirth" name="dateOfBirth" th:field="*{dateOfBirth}" type="date"/>
+            <input class="form-control" id="dateOfBirth" name="dateOfBirth" required th:field="*{dateOfBirth}"
+                   type="date"/>
         </div>
 
-        <div class="g-recaptcha" data-sitekey="6LfKJeAmAAAAANxgKoJ3TmVqyKsR9TkXZEmgmiqf"></div>
+        <!-- Hidden input to store reCAPTCHA token -->
+        <input id="g-recaptcha-response" name="g-recaptcha-response" type="hidden"/>
 
-        <button class="btn btn-primary mt-2" type="submit">Submit</button>
-        <a class="btn btn-danger mt-2" th:href="@{/}" type="submit">Cancel</a>
+        <button class="btn btn-primary mt-2" id="submitBtn" type="submit">Submit</button>
+        <a class="btn btn-danger mt-2" th:href="@{/}">Cancel</a>
+
+        <div class="alert alert-info mt-3">
+            <small>
+                <i class="bi bi-shield-check"></i>
+                This site is protected by reCAPTCHA v3 and the Google
+                <a href="https://policies.google.com/privacy" target="_blank">Privacy Policy</a> and
+                <a href="https://policies.google.com/terms" target="_blank">Terms of Service</a> apply.
+            </small>
+        </div>
     </form>
 
 </div>
@@ -42,13 +53,38 @@
 <script crossorigin="anonymous"
         integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
         th:src="@{https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js}"></script>
-<script crossorigin="anonymous"
-        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
-        th:src="@{https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js}"></script>
-<script crossorigin="anonymous"
-        integrity="sha384-fbbOQedDUMZZ5KreZpsbe1LCZPVmfTnH7ois6mU1QK+m14rQ1l2bGBq41eYeM/fS"
-        th:src="@{https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js}"></script>
-<script async defer th:src="@{https://www.google.com/recaptcha/api.js}"></script>
+
+<!-- Load reCAPTCHA v3 API - Replace YOUR_SITE_KEY with your actual site key -->
+<script th:src="@{https://www.google.com/recaptcha/api.js?render=YOUR_SITE_KEY}"></script>
+
+<script>
+    // reCAPTCHA v3 implementation
+    const SITE_KEY = 'YOUR_SITE_KEY'; // Replace with your actual reCAPTCHA v3 site key
+
+    document.getElementById('employeeForm').addEventListener('submit', function (event) {
+        event.preventDefault(); // Prevent default form submission
+
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+
+        // Execute reCAPTCHA v3
+        grecaptcha.ready(function () {
+            grecaptcha.execute(SITE_KEY, {action: 'submit'}).then(function (token) {
+                // Add the token to the form
+                document.getElementById('g-recaptcha-response').value = token;
+
+                // Submit the form
+                document.getElementById('employeeForm').submit();
+            }).catch(function (error) {
+                console.error('reCAPTCHA error:', error);
+                alert('reCAPTCHA verification failed. Please try again.');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Submit';
+            });
+        });
+    });
+</script>
 
 </body>
 </html>

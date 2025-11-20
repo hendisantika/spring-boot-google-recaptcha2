@@ -1,11 +1,13 @@
-# Spring Boot Google reCAPTCHA v2
+# Spring Boot Google reCAPTCHA v3
 
-A Spring Boot application demonstrating Google reCAPTCHA v2 integration with employee management functionality.
+A Spring Boot application demonstrating Google reCAPTCHA v3 integration with employee management functionality.
 
 ## Features
 
 - Employee management system (Create, Read operations)
-- Google reCAPTCHA v2 integration for form protection
+- Google reCAPTCHA v3 integration for invisible bot protection
+- Score-based validation (0.0-1.0 scale) to determine bot likelihood
+- Action verification for enhanced security
 - MySQL database integration with JPA/Hibernate
 - Thymeleaf templates for UI
 - Bootstrap 5 for responsive design
@@ -56,7 +58,7 @@ src/
 - JDK 21 or higher
 - Maven 3.6+
 - MySQL 8.0
-- Google reCAPTCHA v2 API keys (Site Key and Secret Key)
+- Google reCAPTCHA v3 API keys (Site Key and Secret Key)
 
 ## Setup Instructions
 
@@ -83,15 +85,18 @@ spring.datasource.username=your_mysql_username
 spring.datasource.password=your_mysql_password
 ```
 
-### 3. Get Google reCAPTCHA Keys
+### 3. Get Google reCAPTCHA v3 Keys
 
 1. Go to [Google reCAPTCHA Admin Console](https://www.google.com/recaptcha/admin)
-2. Register a new site with reCAPTCHA v2 (Checkbox)
-3. Copy your Site Key and Secret Key
+2. Register a new site with **reCAPTCHA v3** (NOT v2)
+3. Add your domain(s) - for local development, add `localhost`
+4. Copy your Site Key and Secret Key
 
-### 4. Configure reCAPTCHA Keys
+**Important**: Make sure to select reCAPTCHA v3, not v2. v3 works invisibly without user interaction.
 
-Update the following files with your reCAPTCHA keys:
+### 4. Configure reCAPTCHA v3 Keys
+
+Update the following files with your reCAPTCHA v3 keys:
 
 **In `src/main/java/com/hendisantika/recaptcha3/service/RecaptchaService.java`:**
 
@@ -101,8 +106,14 @@ private final String RECAPTCHA_SECRET = "your_secret_key_here";
 
 **In `src/main/resources/templates/form.html`:**
 
+Replace `YOUR_SITE_KEY` in two places:
+
 ```html
-<div class="g-recaptcha" data-sitekey="your_site_key_here"></div>
+<!-- In the script tag -->
+<script th:src="@{https://www.google.com/recaptcha/api.js?render=YOUR_SITE_KEY}"></script>
+
+<!-- In the JavaScript constant -->
+const SITE_KEY = 'YOUR_SITE_KEY';
 ```
 
 ### 5. Build the Project
@@ -174,13 +185,51 @@ spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
 spring.jpa.open-in-view=false
 ```
 
-## How reCAPTCHA Works in This Application
+## How reCAPTCHA v3 Works in This Application
 
-1. When a user visits the employee creation form, the reCAPTCHA widget is loaded from Google
-2. The user must complete the CAPTCHA challenge before submitting the form
-3. Upon form submission, the CAPTCHA response token is sent to the server
-4. The `RecaptchaService` validates the token by making a POST request to Google's reCAPTCHA API
-5. If validation succeeds, the employee is created; otherwise, an error page is displayed
+reCAPTCHA v3 works completely invisibly in the background, analyzing user behavior to determine if they are a bot.
+
+### Flow:
+
+1. When a user visits the employee creation form, the reCAPTCHA v3 script loads invisibly
+2. When the user clicks "Submit", JavaScript intercepts the form submission
+3. `grecaptcha.execute()` is called with the action "submit" to generate a token
+4. The token is automatically added to a hidden field and the form is submitted
+5. On the server, `RecaptchaService` validates the token by making a POST request to Google's API
+6. Google returns a response with:
+    - `success`: boolean indicating if the token is valid
+    - `score`: 0.0-1.0 (1.0 = very likely human, 0.0 = very likely bot)
+    - `action`: the action name for verification
+7. The server checks if:
+    - The request was successful
+    - The score is above the threshold (default: 0.5)
+    - The action matches the expected action ("submit")
+8. If validation passes, the employee is created; otherwise, an error page is displayed
+
+### Score Interpretation:
+
+- **0.9 - 1.0**: Very likely a human
+- **0.5 - 0.9**: Probably a human
+- **0.3 - 0.5**: Suspicious activity
+- **0.0 - 0.3**: Very likely a bot
+
+The default threshold is **0.5**, which you can adjust in `RecaptchaService.java`:
+
+```java
+private static final double SCORE_THRESHOLD = 0.5; // Adjust as needed
+```
+
+## reCAPTCHA v3 vs v2: Key Differences
+
+| Feature              | v2                                         | v3                                        |
+|----------------------|--------------------------------------------|-------------------------------------------|
+| **User Interaction** | Requires checkbox click or image challenge | Completely invisible, no user interaction |
+| **User Experience**  | Can interrupt user flow                    | Seamless, no interruption                 |
+| **Validation**       | Binary (pass/fail)                         | Score-based (0.0 - 1.0)                   |
+| **Bot Detection**    | Challenge-based                            | Behavioral analysis                       |
+| **Action Tracking**  | Not available                              | Can track specific actions                |
+| **Customization**    | Limited                                    | Adjustable score thresholds               |
+| **False Positives**  | Lower (explicit challenges)                | Possible (requires threshold tuning)      |
 
 ## Security Notes
 
@@ -188,6 +237,9 @@ spring.jpa.open-in-view=false
   system in production)
 - Never commit your actual reCAPTCHA keys to version control
 - The current implementation stores the secret key in the source code for demonstration purposes only
+- Adjust the score threshold based on your application's security needs and acceptable false positive rate
+- Monitor reCAPTCHA scores in production to fine-tune your threshold
+- Consider implementing different thresholds for different actions (e.g., stricter for payments, looser for comments)
 
 ## Recommended Production Enhancements
 
@@ -210,9 +262,14 @@ spring.jpa.open-in-view=false
 
 ### reCAPTCHA validation fails
 
-- Verify your Secret Key is correct
-- Ensure your domain is registered in Google reCAPTCHA console
-- Check that the Site Key in `form.html` matches your reCAPTCHA configuration
+- Verify your Secret Key is correct in `RecaptchaService.java`
+- Ensure your domain is registered in Google reCAPTCHA console (including `localhost` for development)
+- Check that the Site Key in `form.html` matches your reCAPTCHA v3 configuration (replace both instances of
+  `YOUR_SITE_KEY`)
+- Make sure you registered for **v3**, not v2 - they use different keys
+- Check browser console for JavaScript errors
+- Verify the action name matches between frontend ("submit") and backend validation
+- Check application logs for the score value to see if it's below the threshold
 
 ### Lombok compilation errors
 

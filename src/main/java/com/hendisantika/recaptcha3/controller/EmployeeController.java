@@ -49,9 +49,12 @@ public class EmployeeController {
     }
 
     @PostMapping("/create/process")
-    public String createProcess(@ModelAttribute(name = "employee") EmployeeDTO employeeDTO, @RequestParam(name = "g-recaptcha-response") String captcha, Model model) {
+    public String createProcess(@ModelAttribute(name = "employee") EmployeeDTO employeeDTO,
+                                @RequestParam(name = "g-recaptcha-response") String captchaToken,
+                                Model model) {
 
-        boolean captchaValid = recaptchaService.validateRecaptcha(captcha);
+        // Validate reCAPTCHA v3 token with expected action
+        boolean captchaValid = recaptchaService.validateRecaptcha(captchaToken, "submit");
 
         if (captchaValid) {
             Employee employeeEntity = Employee.builder()
@@ -63,8 +66,7 @@ public class EmployeeController {
             employeeService.createEmployee(employeeEntity);
             return "redirect:/all";
         } else {
-
-            model.addAttribute("message", "captcha invalido");
+            model.addAttribute("message", "reCAPTCHA validation failed. You appear to be a bot. Please try again.");
             return "error";
         }
     }
