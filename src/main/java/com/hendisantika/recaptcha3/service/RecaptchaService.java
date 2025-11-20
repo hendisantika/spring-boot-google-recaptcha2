@@ -27,7 +27,7 @@ public class RecaptchaService {
         RestTemplate restTemplate = new RestTemplate();
         MultiValueMap<String, String> request = new LinkedMultiValueMap<>();
         request.add("secret", RECAPTCHA_SECRET);
-        request.add("secret", captcha);
+        request.add("response", captcha);
 
         RecaptchaResponse apiResponse = restTemplate.postForObject(GOOGLE_RECAPTCHA_ENDPOINT, request, RecaptchaResponse.class);
 
