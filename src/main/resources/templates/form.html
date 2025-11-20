@@ -2,57 +2,165 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
-          name="viewport">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="ie=edge" http-equiv="X-UA-Compatible">
-    <title>Create Employee</title>
+    <title>Add New Employee</title>
 
-    <link crossorigin="anonymous" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
-          rel="stylesheet" th:href="@{https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css}">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 <body>
 
-<div class="container">
-    <h1 class="text-center mt-4">User Management</h1>
+<div class="modern-container">
+    <!-- Header -->
+    <header class="modern-header">
+        <h1>
+            <i class="bi bi-person-plus-fill"></i>
+            Add New Employee
+        </h1>
+        <p>Fill in the details below to register a new team member</p>
+    </header>
 
-    <form id="employeeForm" method="post" th:action="@{/create/process}" th:object="${employee}">
-
-        <div class="mb-3">
-            <label class="form-label" for="name">First Name</label>
-            <input class="form-control" id="name" name="name" required th:field="*{name}" type="text"/>
+    <!-- Main Card -->
+    <div class="modern-card" style="max-width: 600px; margin: 0 auto;">
+        <!-- Form Header -->
+        <div style="margin-bottom: 2rem;">
+            <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem;">
+                <i class="bi bi-clipboard2-data"></i>
+                Employee Information
+            </h2>
+            <p style="color: var(--gray-500); font-size: 0.875rem;">
+                Please provide accurate information about the new employee
+            </p>
         </div>
-        <div class="mb-3">
-            <label class="form-label" for="lastName">Last name</label>
-            <input class="form-control" id="lastName" name="lastName" required th:field="*{lastName}" type="text"/>
-        </div>
-        <div class="mb-3">
-            <label class="form-label" for="dateOfBirth">Birthdate</label>
-            <input class="form-control" id="dateOfBirth" name="dateOfBirth" required th:field="*{dateOfBirth}"
-                   type="date"/>
-        </div>
 
-        <!-- Hidden input to store reCAPTCHA token -->
-        <input id="g-recaptcha-response" name="g-recaptcha-response" type="hidden"/>
+        <!-- Form -->
+        <form class="form-modern" id="employeeForm" method="post" th:action="@{/create/process}"
+              th:object="${employee}">
 
-        <button class="btn btn-primary mt-2" id="submitBtn" type="submit">Submit</button>
-        <a class="btn btn-danger mt-2" th:href="@{/}">Cancel</a>
+            <!-- First Name -->
+            <div class="form-group-modern">
+                <label class="form-label-modern" for="name">
+                    <i class="bi bi-person"></i>
+                    First Name *
+                </label>
+                <input class="form-control-modern"
+                       id="name"
+                       name="name"
+                       placeholder="Enter first name"
+                       required
+                       th:field="*{name}"
+                       type="text"/>
+                <small style="color: var(--gray-500); font-size: 0.75rem; margin-top: 0.25rem; display: block;">
+                    Employee's legal first name
+                </small>
+            </div>
 
-        <div class="alert alert-info mt-3">
-            <small>
+            <!-- Last Name -->
+            <div class="form-group-modern">
+                <label class="form-label-modern" for="lastName">
+                    <i class="bi bi-person-badge"></i>
+                    Last Name *
+                </label>
+                <input class="form-control-modern"
+                       id="lastName"
+                       name="lastName"
+                       placeholder="Enter last name"
+                       required
+                       th:field="*{lastName}"
+                       type="text"/>
+                <small style="color: var(--gray-500); font-size: 0.75rem; margin-top: 0.25rem; display: block;">
+                    Employee's legal last name
+                </small>
+            </div>
+
+            <!-- Date of Birth -->
+            <div class="form-group-modern">
+                <label class="form-label-modern" for="dateOfBirth">
+                    <i class="bi bi-calendar-event"></i>
+                    Date of Birth *
+                </label>
+                <input class="form-control-modern"
+                       id="dateOfBirth"
+                       name="dateOfBirth"
+                       required
+                       th:field="*{dateOfBirth}"
+                       type="date"/>
+                <small style="color: var(--gray-500); font-size: 0.75rem; margin-top: 0.25rem; display: block;">
+                    Used for age verification and records
+                </small>
+            </div>
+
+            <!-- reCAPTCHA Hidden Field -->
+            <input id="g-recaptcha-response" name="g-recaptcha-response" type="hidden"/>
+
+            <!-- reCAPTCHA Notice -->
+            <div class="alert-modern alert-info">
                 <i class="bi bi-shield-check"></i>
-                This site is protected by reCAPTCHA v3 and the Google
-                <a href="https://policies.google.com/privacy" target="_blank">Privacy Policy</a> and
-                <a href="https://policies.google.com/terms" target="_blank">Terms of Service</a> apply.
-            </small>
+                <div>
+                    <strong>Protected Submission</strong>
+                    <p style="margin: 0; font-size: 0.875rem; opacity: 0.9;">
+                        This form is protected by reCAPTCHA v3. By submitting, you agree to Google's
+                        <a href="https://policies.google.com/privacy"
+                           style="color: inherit; text-decoration: underline;"
+                           target="_blank">Privacy Policy</a>
+                        and
+                        <a href="https://policies.google.com/terms" style="color: inherit; text-decoration: underline;"
+                           target="_blank">Terms of Service</a>.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <button class="btn-modern btn-primary" id="submitBtn" style="flex: 1;" type="submit">
+                    <i class="bi bi-check-circle"></i>
+                    <span id="btnText">Create Employee</span>
+                </button>
+                <a class="btn-modern btn-secondary" style="flex: 0.5;" th:href="@{/}">
+                    <i class="bi bi-x-circle"></i>
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Features Section -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 3rem; max-width: 900px; margin-left: auto; margin-right: auto;">
+        <div style="background: rgba(255, 255, 255, 0.1); border-radius: var(--radius-lg); padding: 1.5rem; backdrop-filter: blur(10px); color: white;">
+            <i class="bi bi-shield-lock-fill" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+            <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">Secure & Protected</h3>
+            <p style="font-size: 0.875rem; opacity: 0.9; margin: 0;">
+                All submissions are validated with Google reCAPTCHA v3 for maximum security
+            </p>
         </div>
-    </form>
+        <div style="background: rgba(255, 255, 255, 0.1); border-radius: var(--radius-lg); padding: 1.5rem; backdrop-filter: blur(10px); color: white;">
+            <i class="bi bi-lightning-charge-fill" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+            <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">Fast Processing</h3>
+            <p style="font-size: 0.875rem; opacity: 0.9; margin: 0;">
+                Instant validation and immediate database storage upon submission
+            </p>
+        </div>
+        <div style="background: rgba(255, 255, 255, 0.1); border-radius: var(--radius-lg); padding: 1.5rem; backdrop-filter: blur(10px); color: white;">
+            <i class="bi bi-check2-circle" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+            <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">Data Integrity</h3>
+            <p style="font-size: 0.875rem; opacity: 0.9; margin: 0;">
+                All employee data is validated and stored securely in the database
+            </p>
+        </div>
+    </div>
 
+    <!-- Footer -->
+    <footer style="text-align: center; margin-top: 3rem; color: rgba(255, 255, 255, 0.8); font-size: 0.875rem;">
+        <p>
+            <i class="bi bi-shield-lock-fill"></i>
+            Secured with Google reCAPTCHA v3
+        </p>
+    </footer>
 </div>
-
-<script crossorigin="anonymous"
-        integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
-        th:src="@{https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js}"></script>
 
 <!-- Load reCAPTCHA v3 API -->
 <script th:src="@{'https://www.google.com/recaptcha/api.js?render=' + ${recaptchaSiteKey}}"></script>
@@ -65,8 +173,12 @@
         event.preventDefault(); // Prevent default form submission
 
         const submitBtn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('btnText');
+
+        // Disable button and show loading state
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+        submitBtn.style.opacity = '0.7';
+        btnText.innerHTML = '<span class="spinner"></span> Processing...';
 
         // Execute reCAPTCHA v3
         grecaptcha.ready(function () {
@@ -74,15 +186,63 @@
                 // Add the token to the form
                 document.getElementById('g-recaptcha-response').value = token;
 
+                // Show success state briefly
+                btnText.innerHTML = '<i class="bi bi-check-circle-fill"></i> Submitting...';
+
                 // Submit the form
-                document.getElementById('employeeForm').submit();
+                setTimeout(function () {
+                    document.getElementById('employeeForm').submit();
+                }, 500);
             }).catch(function (error) {
                 console.error('reCAPTCHA error:', error);
-                alert('reCAPTCHA verification failed. Please try again.');
+
+                // Show error alert
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert-modern alert-error';
+                alertDiv.style.marginTop = '1rem';
+                alertDiv.innerHTML = `
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <div>
+                            <strong>Verification Failed</strong>
+                            <p style="margin: 0; font-size: 0.875rem;">reCAPTCHA verification failed. Please refresh and try again.</p>
+                        </div>
+                    `;
+
+                const form = document.getElementById('employeeForm');
+                form.parentNode.insertBefore(alertDiv, form.nextSibling);
+
+                // Reset button
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = 'Submit';
+                submitBtn.style.opacity = '1';
+                btnText.innerHTML = '<i class="bi bi-check-circle"></i> Create Employee';
             });
         });
+    });
+
+    // Form validation feedback
+    document.addEventListener('DOMContentLoaded', function () {
+        const inputs = document.querySelectorAll('.form-control-modern');
+
+        inputs.forEach(input => {
+            input.addEventListener('blur', function () {
+                if (this.value && this.checkValidity()) {
+                    this.style.borderColor = 'var(--success)';
+                    this.style.background = 'rgba(16, 185, 129, 0.05)';
+                } else if (this.value) {
+                    this.style.borderColor = 'var(--danger)';
+                    this.style.background = 'rgba(239, 68, 68, 0.05)';
+                }
+            });
+
+            input.addEventListener('focus', function () {
+                this.style.borderColor = 'var(--primary)';
+                this.style.background = 'white';
+            });
+        });
+
+        // Add animation on page load
+        const card = document.querySelector('.modern-card');
+        card.style.animation = 'fadeInUp 0.6s ease-out';
     });
 </script>
 
