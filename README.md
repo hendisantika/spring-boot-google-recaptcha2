@@ -94,27 +94,68 @@ spring.datasource.password=your_mysql_password
 
 **Important**: Make sure to select reCAPTCHA v3, not v2. v3 works invisibly without user interaction.
 
-### 4. Configure reCAPTCHA v3 Keys
+### 4. Configure reCAPTCHA v3 Keys via Environment Variables
 
-Update the following files with your reCAPTCHA v3 keys:
+The application uses environment variables for security. Set your reCAPTCHA keys as environment variables:
 
-**In `src/main/java/com/hendisantika/recaptcha3/service/RecaptchaService.java`:**
+**Option A: Using .env file (Recommended for Development)**
 
-```java
-private final String RECAPTCHA_SECRET = "your_secret_key_here";
+1. Copy the example file:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Edit `.env` and add your keys:
+   ```bash
+   RECAPTCHA_SECRET_KEY=your_secret_key_here
+   RECAPTCHA_SITE_KEY=your_site_key_here
+   RECAPTCHA_THRESHOLD=0.5
+   ```
+
+3. Load environment variables before running (or use your IDE's environment configuration):
+   ```bash
+   # Linux/Mac
+   export $(cat .env | xargs)
+
+   # Or use direnv, dotenv, etc.
+   ```
+
+**Option B: Set Environment Variables Directly**
+
+```bash
+# Linux/Mac
+export RECAPTCHA_SECRET_KEY=your_secret_key_here
+export RECAPTCHA_SITE_KEY=your_site_key_here
+export RECAPTCHA_THRESHOLD=0.5
+
+# Windows (Command Prompt)
+set RECAPTCHA_SECRET_KEY=your_secret_key_here
+set RECAPTCHA_SITE_KEY=your_site_key_here
+set RECAPTCHA_THRESHOLD=0.5
+
+# Windows (PowerShell)
+$env:RECAPTCHA_SECRET_KEY="your_secret_key_here"
+$env:RECAPTCHA_SITE_KEY="your_site_key_here"
+$env:RECAPTCHA_THRESHOLD="0.5"
 ```
 
-**In `src/main/resources/templates/form.html`:**
+**Option C: Pass as Command Line Arguments**
 
-Replace `YOUR_SITE_KEY` in two places:
-
-```html
-<!-- In the script tag -->
-<script th:src="@{https://www.google.com/recaptcha/api.js?render=YOUR_SITE_KEY}"></script>
-
-<!-- In the JavaScript constant -->
-const SITE_KEY = 'YOUR_SITE_KEY';
+```bash
+java -jar target/recaptcha2-0.0.1-SNAPSHOT.jar \
+  --recaptcha.secret-key=your_secret_key_here \
+  --recaptcha.site-key=your_site_key_here \
+  --recaptcha.threshold=0.5
 ```
+
+**Option D: IDE Configuration (IntelliJ IDEA)**
+
+1. Go to Run → Edit Configurations
+2. Select your Spring Boot configuration
+3. Add to "Environment variables":
+   ```
+   RECAPTCHA_SECRET_KEY=your_secret_key_here;RECAPTCHA_SITE_KEY=your_site_key_here;RECAPTCHA_THRESHOLD=0.5
+   ```
 
 ### 5. Build the Project
 
@@ -168,6 +209,16 @@ The application will start on `http://localhost:8080`
 
 ## Configuration
 
+### Environment Variables
+
+The application requires the following environment variables:
+
+| Variable               | Required | Default | Description                  |
+|------------------------|----------|---------|------------------------------|
+| `RECAPTCHA_SECRET_KEY` | Yes      | -       | Your reCAPTCHA v3 Secret Key |
+| `RECAPTCHA_SITE_KEY`   | Yes      | -       | Your reCAPTCHA v3 Site Key   |
+| `RECAPTCHA_THRESHOLD`  | No       | 0.5     | Score threshold (0.0-1.0)    |
+
 ### application.properties
 
 ```properties
@@ -183,6 +234,11 @@ spring.jpa.show-sql=true
 spring.jpa.properties.hibernate.format_sql=true
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
 spring.jpa.open-in-view=false
+
+# Google reCAPTCHA v3 Configuration (reads from environment variables)
+recaptcha.secret-key=${RECAPTCHA_SECRET_KEY:}
+recaptcha.site-key=${RECAPTCHA_SITE_KEY:}
+recaptcha.threshold=${RECAPTCHA_THRESHOLD:0.5}
 ```
 
 ## How reCAPTCHA v3 Works in This Application
@@ -233,24 +289,28 @@ private static final double SCORE_THRESHOLD = 0.5; // Adjust as needed
 
 ## Security Notes
 
-- The reCAPTCHA Secret Key should be stored securely (consider using environment variables or a secrets management
-  system in production)
-- Never commit your actual reCAPTCHA keys to version control
-- The current implementation stores the secret key in the source code for demonstration purposes only
-- Adjust the score threshold based on your application's security needs and acceptable false positive rate
-- Monitor reCAPTCHA scores in production to fine-tune your threshold
-- Consider implementing different thresholds for different actions (e.g., stricter for payments, looser for comments)
+- **Environment Variables**: reCAPTCHA keys are now stored as environment variables, not in source code
+- **Never commit keys**: The `.env` file is gitignored - never commit actual keys to version control
+- **Production**: Use your cloud provider's secret management (AWS Secrets Manager, Azure Key Vault, etc.)
+- **Threshold Tuning**: Adjust the score threshold based on your security needs and acceptable false positive rate
+- **Monitoring**: Monitor reCAPTCHA scores in production to fine-tune your threshold
+- **Action-Based**: Consider implementing different thresholds for different actions (e.g., stricter for payments,
+  looser for comments)
+- **Key Rotation**: Rotate your reCAPTCHA keys periodically for enhanced security
 
 ## Recommended Production Enhancements
 
-1. Move reCAPTCHA keys to environment variables or external configuration
-2. Add input validation and error handling
-3. Implement update and delete operations for employees
-4. Add pagination for employee listing
-5. Implement proper logging
-6. Add unit and integration tests
-7. Use HTTPS in production
-8. Add authentication and authorization
+1. ✅ ~~Move reCAPTCHA keys to environment variables~~ (Already implemented!)
+2. Use cloud-based secret management (AWS Secrets Manager, Azure Key Vault, GCP Secret Manager)
+3. Add input validation and error handling
+4. Implement update and delete operations for employees
+5. Add pagination for employee listing
+6. Implement proper logging and monitoring
+7. Add unit and integration tests
+8. Use HTTPS in production
+9. Add authentication and authorization
+10. Implement rate limiting
+11. Add health checks and metrics endpoints
 
 ## Troubleshooting
 

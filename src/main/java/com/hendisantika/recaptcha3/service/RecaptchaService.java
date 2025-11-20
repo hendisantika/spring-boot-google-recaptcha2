@@ -1,6 +1,8 @@
 package com.hendisantika.recaptcha3.service;
 
+import com.hendisantika.recaptcha3.config.RecaptchaConfig;
 import com.hendisantika.recaptcha3.response.RecaptchaResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -19,11 +21,11 @@ import org.springframework.web.client.RestTemplate;
  */
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class RecaptchaService {
     private static final String GOOGLE_RECAPTCHA_ENDPOINT = "https://www.google.com/recaptcha/api/siteverify";
-    private static final double SCORE_THRESHOLD = 0.5; // Scores above 0.5 are considered human
 
-    private final String RECAPTCHA_SECRET = ""; ///Here is the personal google captcha key
+    private final RecaptchaConfig recaptchaConfig;
 
     /**
      * Validates reCAPTCHA v3 token and returns true if the score is above threshold
@@ -46,7 +48,7 @@ public class RecaptchaService {
         try {
             RestTemplate restTemplate = new RestTemplate();
             MultiValueMap<String, String> request = new LinkedMultiValueMap<>();
-            request.add("secret", RECAPTCHA_SECRET);
+            request.add("secret", recaptchaConfig.getSecretKey());
             request.add("response", token);
 
             RecaptchaResponse apiResponse = restTemplate.postForObject(
@@ -70,8 +72,8 @@ public class RecaptchaService {
             }
 
             // Check if score is above threshold
-            if (apiResponse.getScore() == null || apiResponse.getScore() < SCORE_THRESHOLD) {
-                log.warn("reCAPTCHA score {} is below threshold {}", apiResponse.getScore(), SCORE_THRESHOLD);
+            if (apiResponse.getScore() == null || apiResponse.getScore() < recaptchaConfig.getThreshold()) {
+                log.warn("reCAPTCHA score {} is below threshold {}", apiResponse.getScore(), recaptchaConfig.getThreshold());
                 return false;
             }
 
@@ -99,7 +101,7 @@ public class RecaptchaService {
         try {
             RestTemplate restTemplate = new RestTemplate();
             MultiValueMap<String, String> request = new LinkedMultiValueMap<>();
-            request.add("secret", RECAPTCHA_SECRET);
+            request.add("secret", recaptchaConfig.getSecretKey());
             request.add("response", token);
 
             RecaptchaResponse apiResponse = restTemplate.postForObject(

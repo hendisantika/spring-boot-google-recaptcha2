@@ -1,5 +1,6 @@
 package com.hendisantika.recaptcha3.controller;
 
+import com.hendisantika.recaptcha3.config.RecaptchaConfig;
 import com.hendisantika.recaptcha3.dto.EmployeeDTO;
 import com.hendisantika.recaptcha3.entity.Employee;
 import com.hendisantika.recaptcha3.service.EmployeeService;
@@ -32,6 +33,8 @@ public class EmployeeController {
 
     private final RecaptchaService recaptchaService;
 
+    private final RecaptchaConfig recaptchaConfig;
+
     @GetMapping(path = {"/", "/all"})
     public String showAll(Model model) {
 
@@ -45,6 +48,7 @@ public class EmployeeController {
     @GetMapping("/create/form")
     public String createForm(Model model) {
         model.addAttribute("employee", new Employee());
+        model.addAttribute("recaptchaSiteKey", recaptchaConfig.getSiteKey());
         return "form";
     }
 
