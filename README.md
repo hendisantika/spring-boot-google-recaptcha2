@@ -1,5 +1,10 @@
 # Spring Boot Google reCAPTCHA v3
 
+[![Java CI with Maven](https://github.com/hendisantika/spring-boot-google-recaptcha2/actions/workflows/maven.yml/badge.svg)](https://github.com/hendisantika/spring-boot-google-recaptcha2/actions/workflows/maven.yml)
+![Java](https://img.shields.io/badge/Java-25-orange?logo=openjdk)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1.1-6DB33F?logo=springboot)
+![Dependabot](https://img.shields.io/badge/Dependabot-enabled-025E8C?logo=dependabot)
+
 A Spring Boot application demonstrating Google reCAPTCHA v3 integration with employee management functionality.
 
 ## Image Screenshot
@@ -25,12 +30,13 @@ List Employees
 
 ## Technologies
 
-- **Java**: 21
-- **Spring Boot**: 3.5.8
-- **Database**: MySQL 8.0
-- **ORM**: Hibernate/JPA
+- **Java**: 25
+- **Spring Boot**: 4.1.1
+- **Database**: MySQL 8.x
+- **ORM**: Hibernate 7 / JPA
 - **Template Engine**: Thymeleaf
-- **Build Tool**: Maven
+- **Build Tool**: Maven (via Maven Wrapper `./mvnw`)
+- **CI**: GitHub Actions + Dependabot
 - **UI Framework**: Bootstrap 5.3.0
 
 ## Project Structure
@@ -65,9 +71,9 @@ src/
 
 ## Prerequisites
 
-- JDK 21 or higher
-- Maven 3.6+
-- MySQL 8.0
+- JDK 25 or higher
+- Maven 3.9+ (optional — the bundled Maven Wrapper `./mvnw` downloads the right version)
+- MySQL 8.x
 - Google reCAPTCHA v3 API keys (Site Key and Secret Key)
 
 ## Setup Instructions
@@ -170,8 +176,11 @@ java -jar target/recaptcha2-0.0.1-SNAPSHOT.jar \
 ### 5. Build the Project
 
 ```bash
-mvn clean package
+./mvnw clean package
 ```
+
+> The test suite starts the full Spring context, so a MySQL instance must be reachable with the configured credentials.
+> Use `./mvnw clean package -DskipTests` to build without a database.
 
 ### 6. Run the Application
 
@@ -182,7 +191,7 @@ java -jar target/recaptcha2-0.0.1-SNAPSHOT.jar
 Or run directly with Maven:
 
 ```bash
-mvn spring-boot:run
+./mvnw spring-boot:run
 ```
 
 The application will start on `http://localhost:8080`
@@ -242,7 +251,7 @@ spring.jpa.hibernate.ddl-auto=update
 spring.jpa.generate-ddl=true
 spring.jpa.show-sql=true
 spring.jpa.properties.hibernate.format_sql=true
-spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
+# Dialect is auto-detected by Hibernate 7 (MySQL8Dialect was removed)
 spring.jpa.open-in-view=false
 
 # Google reCAPTCHA v3 Configuration (reads from environment variables)
@@ -316,16 +325,41 @@ private static final double SCORE_THRESHOLD = 0.5; // Adjust as needed
 4. Implement update and delete operations for employees
 5. Add pagination for employee listing
 6. Implement proper logging and monitoring
-7. Add unit and integration tests
+7. Add more unit and integration tests (e.g. Testcontainers for MySQL)
 8. Use HTTPS in production
 9. Add authentication and authorization
 10. Implement rate limiting
 11. Add health checks and metrics endpoints
 
+## Continuous Integration & Dependency Updates
+
+### GitHub Actions
+
+The [`Java CI with Maven`](.github/workflows/maven.yml) workflow runs on every push and pull request to `main`
+(and can be triggered manually):
+
+- Sets up **Temurin JDK 25** with Maven dependency caching
+- Starts a **MySQL 8.4** service container (`root` / `root`, database `capcay`) so the Spring context test can run
+- Runs `./mvnw -B verify`
+- On pushes to `main`, submits the Maven dependency graph to GitHub for better Dependabot alerts
+
+### Dependabot
+
+[`dependabot.yml`](.github/dependabot.yml) keeps dependencies up to date:
+
+| Ecosystem      | Schedule                            | Grouping                                                          |
+|----------------|-------------------------------------|-------------------------------------------------------------------|
+| Maven          | Daily, 21:00 Asia/Jakarta           | `spring-boot`, `maven-plugins` (incl. wrapper), `minor-and-patch` |
+| GitHub Actions | Weekly (Monday), 21:00 Asia/Jakarta | All actions in a single PR                                        |
+
+Pull requests are labelled (`dependencies`, `java` / `github-actions`) and use Conventional Commit prefixes
+(`chore(deps)`, `ci`).
+
 ## Troubleshooting
 
 ### Application won't start
 
+- Ensure you are running on JDK 25 (`java -version`)
 - Ensure MySQL is running
 - Verify database credentials in `application.properties`
 - Check if port 8080 is available
